@@ -50,15 +50,17 @@ def dfprocess(df,prob):
     return v
 
 
-def multiple_test(featurelist,groupvariable,dataset,prob):
+def multiple_test(featurelist,groupvariable,dataset,accuracy_vec):
     '''
     featurelist, features to be test //
+    accuracy_vec is the accuracy of one groupvariable and all the features //
+    accuracy_vec = (g,f1,f2,...,fn), g represents accuracy the groupvariable //
     it returns unadjuested p-values of all single tests
     '''
     p_value=np.ones(shape=(len(featurelist)))
     for i in range(len(featurelist)):
         df_temp=dataset[[groupvariable,featurelist[i]]]
-        v=dfprocess(df_temp,prob)
+        v=dfprocess(df_temp,[accuracy_vec[0],accuracy_vec[i+1]])
         p_value[i]=uncertain_t(v,2,'p_value')
     return p_value
 
@@ -85,3 +87,4 @@ def holm(pvals, alpha):
         else:
             output.append('Accept null hypothesis')
     return output
+
