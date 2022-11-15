@@ -35,6 +35,10 @@ def uncertain_t(v,tail,value):
 
 # estimate the mean and the standard error of two groups
 def estimates(v, value='all'):
+    '''
+    value controls the return, 'mean' for mean, 'standard_error' for se, default is all
+    input vector should be a np.array, v=(x,p), x stands for value, p stands for prob to be in group 1 //
+    '''
     x,p=np.hsplit(v,2)
     N=len(x)
     p_hat=np.mean(p)
@@ -46,11 +50,11 @@ def estimates(v, value='all'):
     se1 = np.sqrt((sum(x**2)/N- (1-p_hat)*z/(N*V_p)) - mu1**2)
     se2 = np.sqrt((sum(x**2)/N- p_hat*z/(N*V_p)) - mu2**2)
     if value == 'all':
-        return ([mu1, se1, mu2, se2])
+        return np.array([mu1, se1, mu2, se2]).reshape(1,4)
     elif value == 'standard_error':
-        return ([se1, se2])
+        return np.array([se1, se2]).reshape(1,2)
     else:
-        return([mu1, mu2])
+        return np.array([mu1, mu2]).reshape(1,2)
 
 
 
@@ -86,6 +90,23 @@ def multiple_test(featurelist,groupvariable,dataset,accuracy_vec):
         v=dfprocess(df_temp,[accuracy_vec[0],accuracy_vec[i+1]])
         p_value[i]=uncertain_t(v,2,'p_value')
     return p_value
+
+
+# estimates of mean, se for all features
+def multiple_estimates(featurelist,groupvariable,dataset,accuracy_vec):
+    '''
+    featurelist, features to be test //
+    accuracy_vec is the accuracy of one groupvariable and all the features //
+    accuracy_vec = (g,f1,f2,...,fn), g represents accuracy the groupvariable //
+    it returns estimate mean, se of all features
+    '''
+    output=pd.DataFrame(columns=['feature','mean1','se1','mean2','se2'])
+    output['feature']=featurelist
+    for i in range(len(featurelist)):
+        df_temp=dataset[[groupvariable,featurelist[i]]]
+        v=dfprocess(df_temp,[accuracy_vec[0],accuracy_vec[i+1]])
+        output.loc[i,['mean1','se1','mean2','se2']] = estimates(v, value='all')
+    return output
 
 
 # adjust the p-value
