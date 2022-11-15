@@ -33,6 +33,28 @@ def uncertain_t(v,tail,value):
     return output.loc[tail-1,value]
 
 
+# estimate the mean and the standard error of two groups
+def estimates(v, value='all'):
+    x,p=np.hsplit(v,2)
+    N=len(x)
+    p_hat=np.mean(p)
+    V_p=np.var(p,ddof=0)
+    d=sum((p-p_hat)*x)/(N*V_p)
+    mu1 = np.mean(x) + d*(1-p_hat)
+    mu2 = np.mean(x) - d*p_hat
+    z = np.sum((p-p_hat)*x**2)
+    se1 = np.sqrt((sum(x**2)/N- (1-p_hat)*z/(N*V_p)) - mu1**2)
+    se2 = np.sqrt((sum(x**2)/N- p_hat*z/(N*V_p)) - mu2**2)
+    if value == 'all':
+        return ([mu1, se1, mu2, se2])
+    elif value == 'standard_error':
+        return ([se1, se2])
+    else:
+        return([mu1, mu2])
+
+
+
+# preprocess the data set
 def dfprocess(df,prob):
     '''
     df is a (n,2) dataframe, first col is the group variable, second col is the feature to be compared //
@@ -50,6 +72,7 @@ def dfprocess(df,prob):
     return v
 
 
+# single test for all features
 def multiple_test(featurelist,groupvariable,dataset,accuracy_vec):
     '''
     featurelist, features to be test //
@@ -65,6 +88,7 @@ def multiple_test(featurelist,groupvariable,dataset,accuracy_vec):
     return p_value
 
 
+# adjust the p-value
 def holm(pvals, p_value=True, alpha=0.05):
     '''
     pvals is the list of p-values //
