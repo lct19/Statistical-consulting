@@ -8,7 +8,7 @@ In this project, I would like to use a group comparison test proposed by Bauer, 
 The umc module is the module I developed for real data analysis. Main methods used here are group comparison method(https://doi.org/10.1007/s11336-021-09794-x) and holm's squential procedure (https://www.jstor.org/stable/4615733).
 
 ## simulation
-Power test of the group comparison method.
+Testing the type one error and type two error of the group comparison method. Also, I would like to know how the accuracy affects the power of the test.
 
 ## real data analysis
 Applied the module to the our project.
