@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import warnings
 from scipy.stats import t
+from scipy.stats import pearsonr
 
 
 # main function
@@ -15,22 +16,24 @@ def uncertain_t(v,tail,value):
     tail should be 1 or 2, means 1 tailed t-test or 2 tailed t-test //
     value should be 'test_statistics' or 'p_value'
     '''
-    x,p=np.hsplit(v,2)
-    N=len(x)
-    p_hat=np.mean(p)
-    V_p=np.var(p,ddof=0)
-    d=sum((p-p_hat)*x)/(N*V_p) # unbiased estimator of mu1-mu2
-    sig2_hat=(sum((x-np.mean(x))**2)-N*p_hat*(1-p_hat)*d**2)/(N-2) # estimator of sigma
-    output=pd.DataFrame(columns=['test_statistics','p_value'])
-    if sig2_hat<=0: # some sigma2 could be negative
-        output['test_statistics']=(float('inf'),float('inf'))
-        output['p_value']=(1,1)
+    x, p = np.hsplit(v, 2)
+    N = len(x)
+    p_hat = np.mean(p)
+    V_p = np.var(p,ddof=0)
+    d = sum((p-p_hat)*x)/(N*V_p) # unbiased estimator of mu1-mu2
+    sig2_hat = (sum((x-np.mean(x))**2) - N*p_hat*(1-p_hat)*d**2)/(N-2) # estimator of sigma
+    output = pd.DataFrame(columns=['test_statistics', 'p_value'])
+    if sig2_hat <= 0: # some sigma2 could be negative
+        output[0, 'test_statistics'] = pearsonr(x.reshape(N), p.reshape(N), 'greater')[0]
+        output[0, 'p_value'] = min(pearsonr(x.reshape(N), p.reshape(N), 'greater')[1], pearsonr(x.reshape(N), p.reshape(N), 'less')[1])
+        output[1, 'p_value'] = pearsonr(x.reshape(N), p.reshape(N))[1]
         warnings.warn("Variance of test-statistics is less or equal to 0", Warning)
     else:
-        output['test_statistics']=(d*math.sqrt(N*V_p/sig2_hat),abs(d*math.sqrt(N*V_p/sig2_hat)))
-        output.loc[0,'p_value']=min(1-t.cdf(x=output.loc[0,'test_statistics'],df=N-1),t.cdf(x=output.loc[0,'test_statistics'],df=N-1))
-        output.loc[1,'p_value']=2*(1-t.cdf(x=output.loc[1,'test_statistics'], df=N-1)) # degree fredom N-1
+        output['test_statistics'] = (d*math.sqrt(N*V_p/sig2_hat), abs(d*math.sqrt(N*V_p/sig2_hat)))
+        output.loc[0,'p_value'] = min(1-t.cdf(x=output.loc[0,'test_statistics'],df=N-1), t.cdf(x=output.loc[0,'test_statistics'],df=N-1))
+        output.loc[1,'p_value'] = 2*(1-t.cdf(x=output.loc[1,'test_statistics'],df=N-1)) # degree fredom N-1
     return output.loc[tail-1,value]
+
 
 
 # estimate the mean and the standard error of two groups
@@ -50,11 +53,11 @@ def estimates(v, value='all'):
     se1 = np.sqrt((sum(x**2)/N- (1-p_hat)*z/(N*V_p)) - mu1**2)
     se2 = np.sqrt((sum(x**2)/N- p_hat*z/(N*V_p)) - mu2**2)
     if value == 'all':
-        return np.array([mu1, se1, mu2, se2]).reshape(1,4)
+        return np.array([mu1, se1, mu2, se2]).reshape(4)
     elif value == 'standard_error':
-        return np.array([se1, se2]).reshape(1,2)
+        return np.array([se1, se2]).reshape(2)
     else:
-        return np.array([mu1, mu2]).reshape(1,2)
+        return np.array([mu1, mu2]).reshape(2)
 
 
 
@@ -97,7 +100,7 @@ def multiple_estimates(featurelist,groupvariable,dataset,accuracy_vec):
     '''
     featurelist, features to be test //
     accuracy_vec is the accuracy of one groupvariable and all the features //
-    accuracy_vec = (g,f1,f2,...,fn), g represents accuracy the groupvariable //
+    accuracy_vec = (g,f1,f2,...,fn), g represents accuracy of the group variable //
     it returns estimate mean, se of all features
     '''
     output=pd.DataFrame(columns=['feature','mean1','se1','mean2','se2'])
