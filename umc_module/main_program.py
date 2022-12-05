@@ -24,9 +24,10 @@ def uncertain_t(v,tail,value):
     sig2_hat = (sum((x-np.mean(x))**2) - N*p_hat*(1-p_hat)*d**2)/(N-2) # estimator of sigma
     output = pd.DataFrame(columns=['test_statistics', 'p_value'])
     if sig2_hat <= 0: # some sigma2 could be negative
-        output[0, 'test_statistics'] = pearsonr(x.reshape(N), p.reshape(N), 'greater')[0]
-        output[0, 'p_value'] = min(pearsonr(x.reshape(N), p.reshape(N), 'greater')[1], pearsonr(x.reshape(N), p.reshape(N), 'less')[1])
-        output[1, 'p_value'] = pearsonr(x.reshape(N), p.reshape(N))[1]
+        output.loc[0, 'test_statistics'] = pearsonr(x.reshape(N), p.reshape(N), alternative = 'greater')[0]
+        output.loc[1, 'test_statistics'] = pearsonr(x.reshape(N), p.reshape(N))[0]
+        output.loc[0, 'p_value'] = min(pearsonr(x.reshape(N), p.reshape(N), alternative = 'greater')[1], pearsonr(x.reshape(N), p.reshape(N), alternative = 'less')[1])
+        output.loc[1, 'p_value'] = pearsonr(x.reshape(N), p.reshape(N))[1]
         warnings.warn("Variance of test-statistics is less or equal to 0", Warning)
     else:
         output['test_statistics'] = (d*math.sqrt(N*V_p/sig2_hat), abs(d*math.sqrt(N*V_p/sig2_hat)))
