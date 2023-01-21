@@ -1,6 +1,6 @@
 # Statistical consulting project
 
-I developed the analysis program for the statistical consulting course Leiden university 2022-2023. 
+Here is the analysis program that I developed for the statistical consulting course Leiden university 2022-2023. 
 
 This study aims to explore the relationship between disinformation tweets with some linguistic features: negations, conjunctions, first-person pronouns, and some words related to sense, causal and cognitive. Also, we investigate the potential differences of these relationships in 4 different languages of Twitter communities. To achieve this goal, we present nine hypotheses based on the findings stated in previous literature. First, it assumes that the proportion of tweets that contain Negations (H1), Refs to self (H2), Conjunctions (H3), Other conjunctions (H4), Initial conjunction (H5), Levelers (H6), Sense words (H7), Causal words (H8), and Cognitive words (H9) are different between disinformation and information groups. Then, we compare the rejected hypotheses for the tweets in four languages: English, Italian, French, and Dutch. Due to the number of observations and subjectivity of fact-checking, the biggest challenge we face is measuring the inaccurate feature indicators in our argument.
 
