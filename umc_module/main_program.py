@@ -140,3 +140,15 @@ def holm(pvals, p_value=True, alpha=0.05):
                 output.append('Accept null hypothesis')
         return output
 
+# calculate effect size based on estimated proportions
+def effect_size(p):
+    '''
+    p = (p1, p2), represents estimated proportions in two groups //
+    it returns cohen'h of p1-p2
+    '''
+    if any(p < 0):
+        return ('Proportion should not less than 0')
+    else:
+        varphi1 = 2*math.asin(math.sqrt(p[0]))
+        varphi2 = 2*math.asin(math.sqrt(p[1]))
+        return varphi1 - varphi2
